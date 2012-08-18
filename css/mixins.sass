@@ -1,0 +1,61 @@
+@mixin transition($style)  
+  -webkit-transition: $style 
+  -moz-transition: $style 
+  -ms-transition: $style  
+  -o-transition: $style
+  transition: $style
+
+@mixin rotate($style)
+  -webkit-transform: rotate($style)
+  -moz-transform: rotate($style)
+  transform: rotate($style)
+
+@mixin box-shadow($style)
+  -webkit-box-shadow: $style
+  -moz-box-shadow: $style
+  box-shadow: $style
+
+@mixin border-radius($style)
+  -webkit-border-radius: $style
+  -moz-border-radius: $style
+  border-radius: $style
+
+@mixin specific-border-radius($radius, $topleft, $topright, $bottomleft: false, $bottomright: false)
+  @if $topleft
+    -webkit-border-top-left-radius: $radius
+    -moz-border-radius-topleft: $radius
+    border-top-left-radius: $radius
+  @if $topright
+    -webkit-border-top-right-radius: $radius
+    -moz-border-radius-topright: $radius
+    border-top-right-radius: $radius
+  @if $bottomleft
+    -webkit-border-bottom-left-radius: $radius
+    -moz-border-radius-bottomleft: $radius
+    border-bottom-left-radius: $radius
+  @if $bottomright
+    -webkit-border-bottom-right-radius: $radius
+    -moz-border-radius-bottomright: $radius
+    border-bottom-right-radius: $radius
+
+@mixin background-gradient($start, $end)
+  background-color: $start
+  background-image: -webkit-gradient(linear, left top, left bottom, from($start), to($end))
+  background-image: -webkit-linear-gradient(top, $start, $end)
+  background-image:    -moz-linear-gradient(top, $start, $end)
+  background-image:     -ms-linear-gradient(top, $start, $end)
+  background-image:      -o-linear-gradient(top, $start, $end)
+  background-image:         linear-gradient(to bottom, $start, $end)
+
+@mixin clearfix
+  &:before, &:after
+    content: ''
+    display: table
+  &:after
+    clear: both
+  zoom: 1
+
+@mixin border-box($style: border-box)
+  -moz-box-sizing: $style
+  -webkit-box-sizing: $style
+  box-sizing: $style
