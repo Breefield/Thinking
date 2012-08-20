@@ -1,3 +1,9 @@
 <h1 id='thinking'>Thinking</h1>
 
 <p>Paper.js based vector illustration tool.</p>
+
+<h2 id='building'>Building</h2>
+
+<pre><code>gem install stasis
+stasis -d 1987
+open http://localhost:1987</code></pre>

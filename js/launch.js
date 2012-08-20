@@ -1,3 +1,9 @@
 $(function() {
-  App.init();
+  App.init({
+  	tools: [
+  		defaultTool,
+  		penTool,
+  		handleTool
+  	]
+  });
 });

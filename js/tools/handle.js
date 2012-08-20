@@ -1,4 +1,4 @@
-var handleTool = (function() {
+var hT = (function() {
 
   var onMouseDown = function(e, object) {
     // Stroke hitTest
@@ -99,3 +99,13 @@ var handleTool = (function() {
   }
 
 })();
+
+var handleTool = new Tool({
+  name: 'handle',
+  hotkey: 'a',
+  init: function () {},
+  onMouseDown: hT.onMouseDown,
+  onMouseUp: hT.onMouseUp,
+  onMouseMove: hT.onMouseMove,
+  onMouseDrag: hT.onMouseDrag
+});

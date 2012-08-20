@@ -1,4 +1,5 @@
-var penTool = (function() {
+
+var pt = (function() {
 
   var onMouseDown = function(e, object) {
     // Alter existing point
@@ -21,8 +22,6 @@ var penTool = (function() {
           // Reset handles, only out if end
           Tools.resetHandles(clickPoint.segment, clickEnd);
           Cursor.updateModifier('subtract');
-        
-        // Dragging out handles, also possible remove on mouseup
         } else {
           object.focus_point.skip_remove = false;
           object.focus_point.divided = false;
@@ -38,8 +37,7 @@ var penTool = (function() {
         var inserted = object.path.insert(clickStroke.location.index + 1, e.point.clone());
         object.focus_point = inserted;
         object.active_handle = 'handle-out';
-        console.log('add');
-        object.focus_point.skip_remove = true;
+        object.focus_point.skip_remove = false;
 
       // Add new point to end line
       } else {
@@ -126,3 +124,13 @@ var penTool = (function() {
   }
 
 })();
+
+var penTool = new Tool({
+  name: 'pen',
+  hotkey: 'p',
+  init: function () {},
+  onMouseDown: pt.onMouseDown,
+  onMouseUp: pt.onMouseUp,
+  onMouseMove: pt.onMouseMove,
+  onMouseDrag: pt.onMouseDrag
+});

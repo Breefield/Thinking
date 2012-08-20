@@ -1,4 +1,4 @@
-var defaultTool = (function() {
+var dT = (function() {
 
   var onMouseDown = function(e, object, app) {
     object.active = object.path.hitTest(e.point, {stroke: true, tolerance: 5});
@@ -12,7 +12,7 @@ var defaultTool = (function() {
     // If we're hovering over the path and not already activated
     if(hoverStroke && !object.active) Tools.activatePath(object);
   }
-  
+
   var onMouseDrag = function(e, object, app) {
     // If active, move entire path
     if(object.active) {
@@ -28,3 +28,13 @@ var defaultTool = (function() {
   }
 
 })();
+
+var defaultTool = new Tool({
+  name: 'default',
+  hotkey: 'v',
+  init: function () {},
+  onMouseDown: dT.onMouseDown,
+  onMouseUp: dT.onMouseUp,
+  onMouseMove: dT.onMouseMove,
+  onMouseDrag: dT.onMouseDrag
+});
