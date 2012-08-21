@@ -1,12 +1,12 @@
 define(
   [
-    'libs/underscore-min', 
-    'libs/selection-cache.min'
+    'underscore', 
+    'selection-cache'
   ],
 
-  function($, _, _$) {
+  function(_, _$) {
 
-    var Cursor = new (function() {
+    function Cursor() {
       var cursor = this;
       var current = {};
       var modifier = false;
@@ -45,8 +45,8 @@ define(
       });
 
       return cursor;
-    })();
+    }
   
-    return Cursor;
+    return new Cursor();
   }
 );

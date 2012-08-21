@@ -1,136 +1,136 @@
+define(
+  [
+    'tools/tools', 
+    'tools/tool', 
+    'tools/cursor'
+  ],
+  function(Tools, Tool, Cursor) {
 
-var pt = (function() {
+    var penTool = new Tool({
+      name: 'pen',
+      hotkey: 'p',
 
-  var onMouseDown = function(e, object) {
-    // Alter existing point
-    var clickPoint = object.path.hitTest(e.point, {segments: true, tolerance: 100});
-    var clickEnd = object.path.hitTest(e.point, {ends: true, tolerance: 100});
+      onMouseDown: function(e, shape) {
+        // Alter existing point
+        var clickPoint = Tools.hitSegment.apply(this, arguments);
+        var clickEnd = Tools.hitEnd.apply(this, arguments);
 
-    if(clickEnd || clickPoint) {
-      // Close the path
-      if(clickEnd && clickEnd.segment.index == 0 && object.path.segments.length > 1) {
-        object.path.closed = true;
-        clickEnd.segment.skip_remove = true;
+        if(clickEnd || clickPoint) {
+          // Close the path
+          if(clickEnd && clickEnd.segment.index == 0 && shape.path.segments.length > 1) {
+            shape.path.closed = true;
+            clickEnd.segment.skip_remove = true;
 
-      // Divide the segment
-      } else {
-        object.focus_point = clickPoint.segment;
+          // Divide the segment
+          } else {
+            shape.focus_point = clickPoint.segment;
 
-        if(Tools.handlesAreUsed(clickPoint.segment)) {
-          object.focus_point.skip_remove = true;
-          object.focus_point.divided = true;
-          // Reset handles, only out if end
-          Tools.resetHandles(clickPoint.segment, clickEnd);
-          Cursor.updateModifier('subtract');
+            if(Tools.handlesAreUsed(clickPoint.segment)) {
+              shape.focus_point.skip_remove = true;
+              shape.focus_point.divided = true;
+              // Reset handles, only handleOut if end
+              Tools.resetHandles(clickPoint.segment, clickEnd);
+              Cursor.updateModifier('subtract');
+            } else {
+              shape.focus_point.skip_remove = false;
+              shape.focus_point.divided = false;
+              shape.active_handle = 'handle-out';
+              Cursor.updateModifier();
+            }
+          }
+
         } else {
-          object.focus_point.skip_remove = false;
-          object.focus_point.divided = false;
-          object.active_handle = 'handle-out';
+          var clickStroke = Tools.hitStroke.apply(this, arguments);
+          // Add new point inside segment
+          if(clickStroke) {
+            var inserted = shape.path.insert(clickStroke.location.index + 1, e.point.clone());
+            shape.focus_point = inserted;
+            shape.active_handle = 'handle-out';
+            // Remember not to remove this point as soon as we've added it
+            shape.focus_point.skip_remove = true;
+
+          // Add new point to end line
+          } else {
+            shape.path.add(e.point);
+            shape.focus_point = shape.path.lastSegment;
+            Tools.showCloseHandles(shape.path, shape.focus_point);
+          }
+        }
+      },
+
+      onMouseUp: function(e, shape) {
+        var clickPoint = shape.path.hitTest(e.point, {segments: true, tolerance: 100});
+
+        if(clickPoint) {
+          if(!Tools.handlesAreUsed(clickPoint.segment)) {
+            if(shape.path.lastSegment.index != clickPoint.segment.index) {
+              if(clickPoint.segment.skip_remove) {
+                clickPoint.segment.skip_remove = false;
+              } else {
+                clickPoint.segment.remove();
+                Cursor.updateModifier('add');
+              }
+            }
+          }
+        }
+      },
+      
+      onMouseMove: function(e, shape) {
+        // If no points in path, add an anchor
+        if(shape.path.segments.length == 0) {
+          Cursor.updateModifier('anchor');
+
+        // Otherwise
+        } else {
+
+          // End hitTest
+          var hoverEnd = shape.path.hitTest(e.point, {ends: true, tolerance: 100});
+
+          if(hoverEnd && hoverEnd.segment.index == 0 && shape.path.segments.length > 1) {
+            Cursor.updateModifier('join');
+
+          } else {
+            // Hovering over a point we can divide
+            var hoverPoint = shape.path.hitTest(e.point, {segments: true, tolerance: 100});
+            if(hoverPoint) {
+              if(Tools.handlesAreUsed(hoverPoint.segment)) {
+                Cursor.updateModifier('divide');
+              } else {
+                Cursor.updateModifier('subtract');
+              }
+
+            } else {
+              // Stroke hitTest
+              try {
+                var hoverStroke = shape.path.hitTest(e.point, {stroke: true, tolerance: 5});
+                if(hoverStroke) {
+                  Cursor.updateModifier('add');
+                } else {
+                  Cursor.updateModifier();
+                }
+              // Bug in paper.js, need to catch here :/
+              } catch(err) {}
+            }
+          }
+        }
+      },
+      
+      onMouseDrag: function(e, shape) {
+        // If a handle is set, make the altercation
+        if(shape.active_handle) {
+          Tools.alterHandles(e, shape.focus_point, shape.active_handle);
+          Tools.showCloseHandles(shape.path, shape.focus_point);
           Cursor.updateModifier();
-        }
-      }
 
-    } else {
-      var clickStroke = object.path.hitTest(e.point, {stroke: true, tolerance: 5});
-      // Add new point inside segment
-      if(clickStroke) {
-        var inserted = object.path.insert(clickStroke.location.index + 1, e.point.clone());
-        object.focus_point = inserted;
-        object.active_handle = 'handle-out';
-        object.focus_point.skip_remove = false;
-
-      // Add new point to end line
-      } else {
-        object.path.add(e.point);
-        object.focus_point = object.path.lastSegment;
-        Tools.showCloseHandles(object.path, object.focus_point);
-      }
-    }
-  }
-
-  var onMouseUp = function(e, object) {
-    var clickPoint = object.path.hitTest(e.point, {segments: true, tolerance: 100});
-
-    if(clickPoint) {
-      if(!Tools.handlesAreUsed(clickPoint.segment)) {
-        if(object.path.lastSegment.index != clickPoint.segment.index) {
-          if(clickPoint.segment.skip_remove) {
-            clickPoint.segment.skip_remove = false;
-          } else {
-            clickPoint.segment.remove();
-            Cursor.updateModifier('add');
-          }
-        }
-      }
-    }
-  }
-
-  var onMouseMove = function(e, object) {
-    // If no points in path, add an anchor
-    if(object.path.segments.length == 0) {
-      Cursor.updateModifier('anchor');
-
-    // Otherwise
-    } else {
-
-      // End hitTest
-      var hoverEnd = object.path.hitTest(e.point, {ends: true, tolerance: 100});
-
-      if(hoverEnd && hoverEnd.segment.index == 0 && object.path.segments.length > 1) {
-        Cursor.updateModifier('join');
-
-      } else {
-        // Hovering over a point we can divide
-        var hoverPoint = object.path.hitTest(e.point, {segments: true, tolerance: 100});
-        if(hoverPoint) {
-          if(Tools.handlesAreUsed(hoverPoint.segment)) {
-            Cursor.updateModifier('divide');
-          } else {
-            Cursor.updateModifier('subtract');
-          }
-
+        // If no handle set, do that
         } else {
-          // Stroke hitTest
-          var hoverStroke = object.path.hitTest(e.point, {stroke: true, tolerance: 5});
-          if(hoverStroke) {
-            Cursor.updateModifier('add');
-          } else {
-            Cursor.updateModifier();
-          }
+          shape.focus_point.divided = false;
+          shape.active_handle = 'handle-out';
         }
       }
-    }
+    });
+
+    return penTool;
+
   }
-
-  var onMouseDrag = function(e, object) {
-    // If a handle is set, make the altercation
-    if(object.active_handle) {
-      Tools.alterHandles(e, object.focus_point, object.active_handle);
-      Tools.showCloseHandles(object.path, object.focus_point);
-      Cursor.updateModifier();
-
-    // If no handle set, do that
-    } else {
-      object.focus_point.divided = false;
-      object.active_handle = 'handle-out';
-    }
-  }
-
-  return {
-    onMouseDown: onMouseDown,
-    onMouseUp: onMouseUp,
-    onMouseMove: onMouseMove,
-    onMouseDrag: onMouseDrag
-  }
-
-})();
-
-var penTool = new Tool({
-  name: 'pen',
-  hotkey: 'p',
-  init: function () {},
-  onMouseDown: pt.onMouseDown,
-  onMouseUp: pt.onMouseUp,
-  onMouseMove: pt.onMouseMove,
-  onMouseDrag: pt.onMouseDrag
-});
+);

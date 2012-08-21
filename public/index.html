@@ -6,6 +6,7 @@
 <html class='no-js' lang='en'>
   <!-- <![endif] -->
   <head><title>Thinking</title><link href='css/styles.css' media='screen' rel='stylesheet' type='text/css' />
+    <script data-main='js/main' src='js/libs/require.js'></script>
   </head>
   <body>
     <div class='hidden' id='load-tools'>
@@ -27,23 +28,20 @@
     <canvas id='canvas' resize='resize'></canvas>
     <img class='hidden' id='sprite' src='img/sprite.png' />
     <img class='hidden' id='person-sitting' src='img/person-sitting.png' />
-    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js'></script>
-    <script type='text/javascript'>
-      //<![CDATA[
-        window.jQuery || document.write('<script src="js/libs/jquery-1.8.0.min.js"><\/script>')
-      //]]>
-    </script>
-    <script src='js/libs/underscore-min.js'></script>
-    <script src='js/libs/paper.js'></script>
-    <script src='js/libs/selection-cache.min.js'></script>
-    <script src='js/libs/tooltipsy.min.js'></script>
-    <script src='js/tools/cursor.js'></script>
-    <script src='js/tools/tools.js'></script>
-    <script src='js/tools/tool.js'></script>
-    <script src='js/tools/default.js'></script>
-    <script src='js/tools/pen.js'></script>
-    <script src='js/tools/handle.js'></script>
-    <script src='js/app.js'></script>
-    <script src='js/launch.js'></script>
+    <!-- %script{:src => 'http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js'} -->
+    <!-- :javascript -->
+    <!-- window.jQuery || document.write('<script src="js/libs/jquery-1.8.0.min.js"><\/script>') -->
+    <!-- %script{:src => "js/libs/underscore-min.js"} -->
+    <!-- %script{:src => "js/libs/paper.js"} -->
+    <!-- %script{:src => "js/libs/selection-cache.min.js"} -->
+    <!-- %script{:src => "js/libs/tooltipsy.min.js"} -->
+    <!-- %script{:src => "js/tools/cursor.js"} -->
+    <!-- %script{:src => "js/tools/tools.js"} -->
+    <!-- %script{:src => "js/tools/tool.js"} -->
+    <!-- %script{:src => "js/tools/default.js"} -->
+    <!-- %script{:src => "js/tools/pen.js"} -->
+    <!-- %script{:src => "js/tools/handle.js"} -->
+    <!-- %script{:src => "js/app.js"} -->
+    <!-- %script{:src => "js/launch.js"} -->
   </body>
 </html>

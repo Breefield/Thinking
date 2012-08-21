@@ -1,11 +1,19 @@
-var Tool = function (props) {
-	var noOp = function () {};
-	_.extend(this, {
-		onMouseDown: noOp,
-		onMouseUp: noOp,
-		onMouseDrag: noOp,
-		onMouseMove: noOp
-	});
+define(
+  ['underscore'],
+  function(_) {
 
-	_.extend(this, props);
-};
+  var Tool = function (props) {
+  	var noOp = function (){};
+  	_.extend(this, {
+      onMouseDown: noOp,
+  		onMouseUp: noOp,
+  		onMouseDrag: noOp,
+  		onMouseMove: noOp
+  	});
+    
+  	_.extend(this, props);
+  };
+
+  return Tool;
+
+});
