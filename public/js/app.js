@@ -15,7 +15,7 @@ define(
           opts = {tools:[]};
 
       // Class variables
-      var canvas = null;
+      var project = null;
 
       var initialize = function (o) {
         _.extend(opts, o);
@@ -63,7 +63,7 @@ define(
             hotkeys[tool.hotkey] = _.bind(switchToTool, app, tool);
         });
 
-        app.canvas.tool.onKeyDown = function (e) {
+        project.tool.onKeyDown = function (e) {
 
           if (_.isFunction(hotkeys[e.key])) {
             (hotkeys[e.key])(e);
@@ -74,7 +74,7 @@ define(
       };
 
       var switchToTool = function (tool) {
-        Cursor.update(tool);
+        Cursor.update(tool, app.penline);
 
         // Select toolbar item
         $('#toolbar .icon.current').removeClass('current');
@@ -85,9 +85,9 @@ define(
        * Start up Paper JS so we're ready to render/draw things
        */
       var initCanvas = function(f) {
-        app.canvas = (new paper.PaperScope());
-        app.canvas.setup(_$('#canvas')[0]);
-        app.canvas.tool = new paper.Tool();
+        project = (new paper.PaperScope());
+        project.setup(_$('#canvas')[0]);
+        project.tool = new paper.Tool();
 
         // Callback
         f();
@@ -98,24 +98,22 @@ define(
        */
       function initTools() {
 
-        initGuideline();
         initPenline();
 
-        app.canvas.tool.onMouseDown = function (e) {
+        project.tool.onMouseDown = function (e) {
           resetPenline();
           Cursor.onMouseDown(e, app.penline);
         };
 
-        app.canvas.tool.onMouseMove = function (e) {
-          updateGuideline(e);
+        project.tool.onMouseMove = function (e) {
           Cursor.onMouseMove(e, app.penline);
         };
 
-        app.canvas.tool.onMouseDrag = function (e) {
+        project.tool.onMouseDrag = function (e) {
           Cursor.onMouseDrag(e, app.penline);
         };
 
-        app.canvas.tool.onMouseUp = function (e) {
+        project.tool.onMouseUp = function (e) {
           Cursor.onMouseUp(e, app.penline);
         };
 
@@ -127,21 +125,36 @@ define(
         };
       }
 
+      /** fuction initShapes
+       */
+
       /** function initPenline
        * Prep the penline variables
        */
       function initPenline() {
         app.penline = {
-          path: new app.canvas.Path(),
-          active: true,
+          path: new project.Path(),
+          guideline: new project.Path(),
+          active: false,
           active_handle: null,
           moving: null,
-          focus_point: null
+          focus_point: null,
+          focus_end: null
         };
+
         app.penline.path.style = {
           strokeWidth: 2,
           strokeColor: 'black'
         };
+
+        app.penline.guideline.style = {
+          strokeWidth: 1,
+          strokeColor: '#009DEC'
+        }
+
+        app.penline.guideline.add(new project.Point(0, 0));
+        app.penline.guideline.add(new project.Point(0, 0));
+        app.penline.guideline.visible =  false;
       }
 
       /** function resetPenline
@@ -150,23 +163,7 @@ define(
       function resetPenline() {
         app.penline.active_handle = null;
         app.penline.moving = null;
-        app.penline.focus_point = null;
-      }
-
-      /** function initFutureLine
-       * Prep the guideline variables
-       */
-      function initGuideline() {
-        app.guideline = new app.canvas.Path();
-        app.guideline.style = {
-          strokeWidth: 0.5,
-          strokeColor: '#009DEC'
-        }
-        app.guideline.visible = false;
-      }
-
-      function updateGuideline() {
-        //that.guideline.moveTo();
+        app.penline.post_inserted = null;
       }
 
       // Return the correct functions for external interaction

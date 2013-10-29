@@ -6,33 +6,49 @@ define(
   ],
   function(Tools, Tool, Cursor) {
 
-    var defaultTool = new Tool({
-      name: 'default',
-      hotkey: 'v',
-      init: function () {},
-      onMouseDown: function(e, shape) {
-        shape.active = shape.path.hitTest(e.point, {stroke: true, tolerance: 5});
-        shape.path.selected = shape.active ? true : false;
-      },
+    var defaultTool = function() {
+      var tool = this;
 
-      onMouseMove: function(e, shape) {
+      // Expose publicly
+      var pub = {
+        name: 'default',
+        hotkey: 'v'
+      }
+
+      pub.onMouseDown = function(e, shape) {
+        var hitStroke = Tools.hitStroke(e, shape);
+
+        if(hitStroke) {
+          Tools.activatePath(shape);
+        } else {
+          Tools.deactivatePath(shape);
+          shape.focus_end = null;
+        }
+      }
+
+      pub.onMouseMove = function(e, shape) {
         // Check if line selection should be shown
-        var hoverStroke = shape.path.hitTest(e.point, {stroke: true, tolerance: 5});
-
+        var hoverStroke = Tools.hitStroke(e, shape);
         // If we're hovering over the path and not already activated
-        if(hoverStroke && !shape.active) Tools.activatePath(shape);
-      },
+        if(hoverStroke) {
+          Tools.selectAllPoints(shape);
+        } else if(!shape.active) {
+          Tools.deselectAllPoints(shape);
+        }
+      }
 
-      onMouseDrag: function(e, shape) {
+      pub.onMouseDrag = function(e, shape) {
         // If active, move entire path
         if(shape.active) {
           shape.path.position.x += e.delta.x;
           shape.path.position.y += e.delta.y;
         }
       }
-    });
 
-    return defaultTool;
+      return pub;
+    }
+
+    return new Tool(new defaultTool());
   
   }
 );

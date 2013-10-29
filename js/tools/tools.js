@@ -3,13 +3,13 @@ define(
   function($) {
 
     var Tools = {
-      showCloseHandles: function(path, point) {
-        this.deselectAllPoints(path);
+      showCloseHandles: function(shape, point) {
+        this.deselectAllPoints(shape);
         point.selected = true;
 
-        var before = path.segments[point.index - 1];
+        var before = shape.path.segments[point.index - 1];
         if(before != undefined) before.selected = true;
-        var after = path.segments[point.index + 1];
+        var after = shape.path.segments[point.index + 1];
         if(after != undefined) after.selected = true;
       },
 
@@ -61,28 +61,84 @@ define(
         }
       },
 
-      activatePath: function(line) {
-        line.active = true;
-        this.deselectAllPoints(line.path);
-        line.path.selected = true;
+      activatePath: function(shape) {
+        if(shape.active) return false;
+        this.selectAllPoints(shape);
+        shape.active = true;
       },
 
-      deselectAllPoints: function(path) {
-        path.selected = false;
-        path.fullySelected = false;
-        $.each(path.segments, function(i, p) { p.point.selected = false; });
+      deactivatePath: function(shape) {
+        if(!shape.active) return false;
+        this.deselectAllPoints(shape);
+        shape.active = false;
+      },
+
+      deselectAllPoints: function(shape) {
+        shape.selected = false;
+        shape.path.fullySelected = false;
+        $.each(shape.path.segments, function(i, p) { p.point.selected = false; });
+      },
+
+      selectAllPoints: function(shape) {
+        this.deselectAllPoints(shape);
+        shape.path.selected = true;
       },
 
       hitSegment: function(e, shape) {
-        return shape.path.hitTest(e.point, {segments: true, tolerance: 100});
+        try {
+          return shape.path.hitTest(e.point, {segments: true, tolerance: 100});
+        } catch(er) { 
+          return false; 
+        }
       },
 
       hitEnd: function(e, shape) {
-        return shape.path.hitTest(e.point, {ends: true, tolerance: 100});
+        try {
+          return shape.path.hitTest(e.point, {ends: true, tolerance: 100});
+        } catch(er) { 
+          return false; 
+        }
       },
 
       hitStroke: function(e, shape) {
-        return shape.path.hitTest(e.point, {stroke: true, tolerance: 5});
+        try {
+          return shape.path.hitTest(e.point, {stroke: true, tolerance: 5});
+        } catch(er) { 
+          console.log(er.message);
+          return false; 
+        }
+      },
+
+      hitHandles: function(e, shape) {
+        try {
+          return shape.path.hitTest(e.point, {handles: true, tolerance: 40});
+        } catch(er) { 
+          return false; 
+        }
+      },
+
+      empty: function(shape) {
+        return shape.path.segments.length == 0;
+      },
+
+      longerThanOne: function(shape) {
+        return shape.path.segments.length > 1;
+      },
+
+      isOppositeFocusedEnd: function(end, shape) {
+                // Points aren't the same point
+        return  end.segment.index != shape.focus_end.index &&
+                // Points are opposite one another
+                ((end.segment.index == 0 && shape.focus_end.index == shape.path.segments.length - 1) || 
+                (shape.focus_end.index == 0 && end.segment.index == shape.path.segments.length - 1));
+      },
+
+      isStartSegment: function(end, shape) {
+        return end.index == 0 && shape.path.segments.length > 1;
+      },
+
+      isEndSegment: function(end, shape) {
+        return end.index == shape.path.segments.length - 1;
       }
     }
 

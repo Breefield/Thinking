@@ -4,12 +4,14 @@ define(
 
   var Tool = function (props) {
   	var noOp = function (){};
-  	_.extend(this, {
+    // Every tool must have these functions as cursor relies on them
+    _.extend(this, {
       onMouseDown: noOp,
-  		onMouseUp: noOp,
-  		onMouseDrag: noOp,
-  		onMouseMove: noOp
-  	});
+      onMouseUp: noOp,
+      onMouseDrag: noOp,
+      onMouseMove: noOp,
+      deactivate: noOp
+    });
     
   	_.extend(this, props);
   };

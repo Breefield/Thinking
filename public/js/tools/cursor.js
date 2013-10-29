@@ -8,12 +8,17 @@ define(
 
     function Cursor() {
       var cursor = this;
-      var current = {};
+      // Seed with function that will be called upon initial update
+      var current = {deactivate: function() {}};
       var modifier = false;
 
-      this.update = function(update) {
+      this.update = function(update, shape) {
         // If the cursor is new, lets change it
         if(current != update) {
+
+          // Ensure deactivate callback is fired
+          current.deactivate(shape);
+
           current = update;
           _$('body').css({'cursor': "url('img/cursors/" + update.name + ".png'), default"});
         }
